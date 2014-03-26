@@ -6,7 +6,7 @@ This is the repo for all my current and future R applications.
 Current applications hosted on **ShinyApps**:  
 
 1. [**CrimeMap**](http://bit.ly/bib_crimemap): UK Crime Data Visualisation
-2. [**heatmapStock**](http://bit.ly/bib_heatmapStock): Stock Market Calendar Heat Map 
+2. [**heatmapStock**](http://bit.ly/bib_heatmapStock): Stock Market Calendar Heat Map (Prototype)
 
 For latest updates, please check out my blog [**"Blend it like a Bayesian!"**](http://bit.ly/blenditbayes).  
 
@@ -20,5 +20,9 @@ For the history and motivation behind the developing of **CrimeMap**, please see
 
 
 ## Stock Market Calendar Heat Map ([heatmapStock](http://bit.ly/bib_heatmapStock))
+
+I only discovered the [excellent Calender Heat Map example by Paul Bleicher](http://blog.revolutionanalytics.com/2009/11/charting-time-series-as-calendar-heat-maps-in-r.html) and the related R package [makeR by Jason Bryer](http://jason.bryer.org/makeR/). This is a prototype **Shiny** web app that simplifies the underlying process and allows users to create heat map comparison with just a few clicks.
+
+Yet, this app relies heavily on many of the default settings in **makeR** which means I don't have the full control of graphics yet. In the future, I am going to experiment with **ggplot2**, **rCharts** as well as **rBlocks**.
 
 <center>![hmStock](http://woobe.bitbucket.org/images/github/heatmapStock_github.png)</center>

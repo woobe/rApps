@@ -63,14 +63,19 @@ shinyUI(pageWithSidebar(
       checkboxInput("watermark", "Use 'Blenditbayes' Watermark?", TRUE),
       helpText("Note: automatically disabled when 'Facet' is used.")
     ),
+    
+    wellPanel(
+      helpText(HTML("<b>VERSION CONTROL</b>")),
+      HTML('Version 0.1.7'),
+      HTML('<br>'),
+      HTML('Deployed on 25-Mar-2014'),
+      HTML('<br>'),
+      HTML('<a href="http://bit.ly/github_rApps" target="_blank">Code on GitHub</a>')
+    ),
         
     wellPanel(
       helpText(HTML("<b>ABOUT ME</b>")),
       HTML('Jo-fai Chow'),
-      HTML('<br>'),
-      HTML('Machine Learning EngD Candidate'),
-      HTML('<br>'),
-      HTML('Background in Water and Optimisation'),
       HTML('<br>'),
       HTML('<a href="http://bit.ly/aboutme_jofaichow" target="_blank">About Me</a>, '),
       HTML('<a href="http://bit.ly/blenditbayes" target="_blank">Blog</a>, '),
@@ -81,13 +86,12 @@ shinyUI(pageWithSidebar(
     ),
     
     wellPanel(
-      helpText(HTML("<b>VERSION CONTROL</b>")),
-      HTML('Version 0.1.7'),
-      HTML('<br>'),
-      HTML('Deployed on 25-Mar-2014'),
-      HTML('<br>'),
-      HTML('Code moved to https://github.com/woobe/rApps')
-    )
+      helpText(HTML("<b>OTHER STUFF</b>")),
+      HTML('<a href="http://bit.ly/bib_heatmapStock" target="_blank">heatmapStock</a>, '),
+      HTML('<a href="http://bit.ly/rCrimemap" target="_blank">rCrimemap</a>.')
+    ),
+    
+    width = 3
     
   ),
   

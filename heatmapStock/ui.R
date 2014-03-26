@@ -4,7 +4,7 @@ library(makeR)
 library(abind)
 library(png)
 library(ggplot2)
-
+library(quantmod)
 
 shinyUI(pageWithSidebar(
   
@@ -23,14 +23,16 @@ shinyUI(pageWithSidebar(
       helpText(HTML("<b>HEAT MAP ONE</b>")),
       textInput("symbol1", "Symbol:", "GOOG"),
       selectInput("field1", "Field:",
-                  c("AdjClose", "Close", "Open", "High", "Low", "Volume"))
+                  c("AdjClose", "Close", "High", "Low", "Volume",
+                    "ADX", "ATR", "Volatility"))
       ),
     
     wellPanel(
       helpText(HTML("<b>HEAT MAP TWO</b>")),
       textInput("symbol2", "Symbol:", "YHOO"),
       selectInput("field2", "Field:",
-                  c("AdjClose", "Close", "Open", "High", "Low", "Volume"))
+                  c("AdjClose", "Close", "High", "Low", "Volume",
+                    "ADX", "ATR", "Volatility"))
     ),
     
     wellPanel(
@@ -41,16 +43,25 @@ shinyUI(pageWithSidebar(
     ),
     
     wellPanel(
+      helpText(HTML("<b>COLOUR SETTING</b>")),
+      selectInput("colour", "Colour Theme:",
+                  list("Red to Blue" = "r2b",
+                       "Red to Green" = "r2g",
+                       "White to Blue" = "w2b"))
+    ),
+        
+    wellPanel(
       helpText(HTML("<b>CREDITS</b>")),
-      HTML('<a href="http://blog.revolutionanalytics.com/2009/11/charting-time-series-as-calendar-heat-maps-in-r.html" target="_blank">Original Calendar Heat Map</a> and related Package '),
-      HTML("<a href='http://jason.bryer.org/makeR/' target='_blank'>'makeR'</a>.")
+      HTML('<a href="http://blog.revolutionanalytics.com/2009/11/charting-time-series-as-calendar-heat-maps-in-r.html" target="_blank">Original Code</a> by Paul Bleicher,'),
+      HTML("<a href='http://jason.bryer.org/makeR/' target='_blank'> package 'makeR'</a> by Jason Bryer and"),
+      HTML("<a href='http://timelyportfolio.blogspot.co.uk/2012/04/piggybacking-and-hopefully-publicizing.html' target='_blank'> blog post'</a> by Timely Portfolio.")
     ),
     
     wellPanel(
       helpText(HTML("<b>VERSION CONTROL</b>")),
-      HTML('Version 0.0.x (prototype)'),
+      HTML('Version 0.0.1 (prototype)'),
       HTML('<br>'),
-      HTML('Deployed on xx-Mar-2014'),
+      HTML('Deployed on 26-Mar-2014'),
       HTML('<br>'),
       HTML('<a href="http://bit.ly/github_rApps" target="_blank">Code on GitHub</a>')
     ),

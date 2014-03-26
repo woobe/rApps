@@ -4,6 +4,7 @@ library(makeR)
 library(abind)
 library(png)
 library(ggplot2)
+library(quantmod)
 
 shinyServer(function(input, output) {
   
@@ -21,7 +22,16 @@ shinyServer(function(input, output) {
   new_theme_empty$plot.title <- element_blank()
   new_theme_empty$axis.title <- element_blank()
   new_theme_empty$plot.margin <- structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit")
-    
+  
+  ## Calculate Specific Index
+  cal_idx <- function(df, name_idx) {
+    data <- as.matrix(df[, -1])
+    switch(name_idx,
+           ADX = as.matrix(ADX(HLC(data))[, "ADX"]),
+           ATR = as.matrix(ATR(HLC(data))[, "atr"]),
+           Volatility <- as.matrix(volatility(data[,1:4], calc="garman"))
+    )
+  }
   
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Reactive Functions
@@ -101,12 +111,20 @@ shinyServer(function(input, output) {
     ## Extract y
     if (input$field1 %in% c("Open", "High", "Low", "Close", "Volume", "AdjClose")) {
       y <- df1[, which(colnames(df1) == input$field1)]
+    } else {
+      y <- cal_idx(df1, as.character(input$field1))
+    }
+    
+    ## Generate Plot Title
+    if (input$field1 == "AdjClose") {
+      text_title1 <- paste0(input$symbol1, "'s Adjusted Close")
+    } else {
+      text_title1 <- paste0(input$symbol1, "'s ", input$field1)
     }
     
     ## Create Calendar Heat Map and Save as PNG
     png(filename = "h1.png", 1500, 1500, res = 200)
-    calendarHeat(x, y, varname = paste0(input$field1, " (", input$symbol1, ")"),
-                 ncolors = 99, color = "r2b")
+    calendarHeat(x, y, varname = text_title1, ncolors = 99, color = input$colour)
     dev.off()
     
   })
@@ -123,14 +141,22 @@ shinyServer(function(input, output) {
     ## Extract y
     if (input$field2 %in% c("Open", "High", "Low", "Close", "Volume", "AdjClose")) {
       y <- df2[, which(colnames(df2) == input$field2)]
+    } else {
+      y <- cal_idx(df2, as.character(input$field2))
+    }
+    
+    ## Generate Plot Title
+    if (input$field2 == "AdjClose") {
+      text_title2 <- paste0(input$symbol2, "'s Adjusted Close")
+    } else {
+      text_title2 <- paste0(input$symbol2, "'s ", input$field2)
     }
     
     ## Create Calendar Heat Map and Save as PNG
     png(filename = "h2.png", 1500, 1500, res = 200)
-    calendarHeat(x, y, varname = paste0(input$field2, " (", input$symbol2, ")"),
-                 ncolors = 99, color = "r2b")
+    calendarHeat(x, y, varname = text_title2, ncolors = 99, color = input$colour)
     dev.off()
-        
+    
   })
   
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -140,22 +166,34 @@ shinyServer(function(input, output) {
   ## Heat Map Output
   output$heatmap <- renderPlot({
     
-    ## Run reactive functions
-    create_h1()
-    create_h2()
-    
-    ## Read rendered PNGs
-    img1 <- png::readPNG("h1.png")
-    img2 <- png::readPNG("h2.png")
-    
-    ## Combine PNGs and Convert into Grob
-    img <- abind(img1, img2, along = 2)
-    g <- rasterGrob(img, interpolate=TRUE)
-    
-    ## Create ggplot2 object
-    gg_heatmap <- qplot(1:10, 1:10, geom="blank") + geom_blank() +
-      annotation_custom(g, xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf) +  
-      new_theme_empty
+    ## first load or settings are the same as initial values
+    if (input$symbol1 == "GOOG" & input$symbol2 == "YHOO" &
+        input$field1 == "AdjClose" & input$field2 == "AdjClose" &
+        input$start == "2009-01-01" & input$colour == "r2b") {
+      
+      ## Use previously rendered ggplot2 object for faster display
+      load("preloaded.rda")
+      
+    } else {  
+      
+      ## if the initial settings have been changed ...
+      ## Run reactive functions
+      create_h1()
+      create_h2()
+      
+      ## Read rendered PNGs
+      img1 <- png::readPNG("h1.png")
+      img2 <- png::readPNG("h2.png")
+      
+      ## Combine PNGs and Convert into Grob
+      img <- abind(img1, img2, along = 2)
+      g <- rasterGrob(img, interpolate=TRUE)
+      
+      ## Create ggplot2 object
+      gg_heatmap <- qplot(1:10, 1:10, geom="blank") + geom_blank() +
+        annotation_custom(g, xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf) +  
+        new_theme_empty
+    }
     
     ## Return object by printing
     print(gg_heatmap)
@@ -163,3 +201,21 @@ shinyServer(function(input, output) {
   }, width = 3000, height = 1500)
   
 })
+
+
+## =============================================================================
+## Temporary Parameters for Testing Purposes
+## =============================================================================
+
+## Not Run:
+
+if (FALSE) {
+  
+  input <- list(symbol1 = "GOOG",
+                symbol2 = "YHOO",
+                field1 = "AdjClose",
+                field2 = "AdjClose",
+                start = "2009-01-01",
+                colour = "r2b")
+  
+}

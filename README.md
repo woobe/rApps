@@ -21,8 +21,8 @@ For the history and motivation behind the developing of **CrimeMap**, please see
 
 ## Stock Market Calendar Heat Map ([heatmapStock](http://bit.ly/bib_heatmapStock))
 
-I only discovered the [excellent Calender Heat Map example by Paul Bleicher](http://blog.revolutionanalytics.com/2009/11/charting-time-series-as-calendar-heat-maps-in-r.html) and the related R package [makeR by Jason Bryer](http://jason.bryer.org/makeR/). This is a prototype **Shiny** web app that simplifies the underlying process and allows users to create heat map comparison with just a few clicks.
+I recently discovered the [excellent Calender Heat Map example by Paul Bleicher](http://blog.revolutionanalytics.com/2009/11/charting-time-series-as-calendar-heat-maps-in-r.html), the related R package [makeR by Jason Bryer](http://jason.bryer.org/makeR/) and the [blog post by Timely Portfolio](http://timelyportfolio.blogspot.co.uk/2012/04/piggybacking-and-hopefully-publicizing.html). (Well, old news but I knew very little about R before 2013.)
 
-Yet, this app relies heavily on many of the default settings in **makeR** which means I don't have the full control of graphics yet. In the future, I am going to experiment with **ggplot2**, **rCharts** as well as **rBlocks**.
+I decided to create a **Shiny** web app to simplify the underlying process, thus allowing users to create heat map comparison with just a few clicks. Yet, this app relies heavily on many of the default settings in **makeR** which means I don't have the full control of graphics. In the future, I intend to experiment with **ggplot2**, **rCharts** as well as **rBlocks**.
 
 <center>![hmStock](http://woobe.bitbucket.org/images/github/heatmapStock_github.png)</center>

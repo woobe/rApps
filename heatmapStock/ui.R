@@ -59,9 +59,9 @@ shinyUI(pageWithSidebar(
     
     wellPanel(
       helpText(HTML("<b>VERSION CONTROL</b>")),
-      HTML('Version 0.0.1 (prototype)'),
+      HTML('Version 0.0.2 (prototype)'),
       HTML('<br>'),
-      HTML('Deployed on 26-Mar-2014'),
+      HTML('Deployed on 28-Mar-2014'),
       HTML('<br>'),
       HTML('<a href="http://bit.ly/github_rApps" target="_blank">Code on GitHub</a>')
     ),

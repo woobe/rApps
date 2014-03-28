@@ -123,7 +123,7 @@ shinyServer(function(input, output) {
     }
     
     ## Create Calendar Heat Map and Save as PNG
-    png(filename = "h1.png", 1500, 1500, res = 200)
+    png(filename = "h1.png", 750, 750, res = 100)
     calendarHeat(x, y, varname = text_title1, ncolors = 99, color = input$colour)
     dev.off()
     
@@ -153,7 +153,7 @@ shinyServer(function(input, output) {
     }
     
     ## Create Calendar Heat Map and Save as PNG
-    png(filename = "h2.png", 1500, 1500, res = 200)
+    png(filename = "h2.png", 750, 750, res = 100)
     calendarHeat(x, y, varname = text_title2, ncolors = 99, color = input$colour)
     dev.off()
     
@@ -198,7 +198,7 @@ shinyServer(function(input, output) {
     ## Return object by printing
     print(gg_heatmap)
     
-  }, width = 3000, height = 1500)
+  }, width = 1500, height = 750)
   
 })
 

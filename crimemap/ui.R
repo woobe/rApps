@@ -66,9 +66,9 @@ shinyUI(pageWithSidebar(
     
     wellPanel(
       helpText(HTML("<b>VERSION CONTROL</b>")),
-      HTML('Version 0.1.7'),
+      HTML('Version 0.1.8'),
       HTML('<br>'),
-      HTML('Deployed on 25-Mar-2014'),
+      HTML('Deployed on 04-Apr-2014'),
       HTML('<br>'),
       HTML('<a href="http://bit.ly/github_rApps" target="_blank">Code on GitHub</a>')
     ),
@@ -77,11 +77,15 @@ shinyUI(pageWithSidebar(
       helpText(HTML("<b>ABOUT ME</b>")),
       HTML('Jo-fai Chow'),
       HTML('<br>'),
-      HTML('<a href="http://bit.ly/aboutme_jofaichow" target="_blank">About Me</a>, '),
+      HTML('<a href="http://bit.ly/jofaichow" target="_blank">www.jofaichow.co.uk</a>')
+    ),
+    
+    wellPanel(
+      helpText(HTML("<b>OTHER LINKS</b>")),
       HTML('<a href="http://bit.ly/blenditbayes" target="_blank">Blog</a>, '),
       HTML('<a href="http://bit.ly/github_woobe" target="_blank">Github</a>, '),
       HTML('<a href="http://bit.ly/linkedin_jofaichow" target="_blank">LinkedIn</a>, '),
-      HTML('<a href="http://bit.ly/kaggle_woobe" target="_blank">Kaggle</a>.'),
+      HTML('<a href="http://bit.ly/kaggle_woobe" target="_blank">Kaggle</a>, '),
       HTML('<a href="http://bit.ly/cv_jofaichow" target="_blank">Résumé</a>.')
     ),
     

@@ -9,3 +9,4 @@ Changes
 * 10-Mar-2014 --- Version 0.1.5 --- updated for LondonR demo.
 * 20-Mar-2014 --- Version 0.1.6 --- updated introduction.
 * 25-Mar-2014 --- Version 0.1.7 --- moved code to [https://github.com/woobe/rApps](https://github.com/woobe/rApps)
+* 04-Apr-2014 --- Version 0.1.8 --- added links to new personal website [http://www.jofaichow.co.uk](http://bit.ly/jofaichow)

@@ -166,34 +166,22 @@ shinyServer(function(input, output) {
   ## Heat Map Output
   output$heatmap <- renderPlot({
     
-    ## first load or settings are the same as initial values
-    if (input$symbol1 == "GOOG" & input$symbol2 == "YHOO" &
-        input$field1 == "AdjClose" & input$field2 == "AdjClose" &
-        input$start == "2009-01-01" & input$colour == "r2b") {
-      
-      ## Use previously rendered ggplot2 object for faster display
-      load("preloaded.rda")
-      
-    } else {  
-      
-      ## if the initial settings have been changed ...
-      ## Run reactive functions
-      create_h1()
-      create_h2()
-      
-      ## Read rendered PNGs
-      img1 <- png::readPNG("h1.png")
-      img2 <- png::readPNG("h2.png")
-      
-      ## Combine PNGs and Convert into Grob
-      img <- abind(img1, img2, along = 2)
-      g <- rasterGrob(img, interpolate=TRUE)
-      
-      ## Create ggplot2 object
-      gg_heatmap <- qplot(1:10, 1:10, geom="blank") + geom_blank() +
-        annotation_custom(g, xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf) +  
-        new_theme_empty
-    }
+    ## Run reactive functions
+    create_h1()
+    create_h2()
+    
+    ## Read rendered PNGs
+    img1 <- png::readPNG("h1.png")
+    img2 <- png::readPNG("h2.png")
+    
+    ## Combine PNGs and Convert into Grob
+    img <- abind(img1, img2, along = 2)
+    g <- rasterGrob(img, interpolate=TRUE)
+    
+    ## Create ggplot2 object
+    gg_heatmap <- qplot(1:10, 1:10, geom="blank") + geom_blank() +
+      annotation_custom(g, xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf) +  
+      new_theme_empty
     
     ## Return object by printing
     print(gg_heatmap)

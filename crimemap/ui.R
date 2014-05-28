@@ -20,15 +20,15 @@ shinyUI(pageWithSidebar(
     wellPanel(
       helpText(HTML("<b>BASIC SETTINGS</b>")),
       
-      textInput("poi", "Enter a Location of Interest:", "Demo (London)"),
+      textInput("poi", "Enter a Location of Interest:", "London Eye (Demo)"),
       helpText("Examples: Oxford, Wembley Stadium, M16 0RA etc."),
       
-      dateInput("start", "First Month of Data Collection:", value = "2012-01-01", format = "yyyy-mm",
-                min = "2012-01-01", max = "2014-01-01"),
+      dateInput("start", "First Month of Data Collection:", value = "2013-01-01", format = "yyyy-mm",
+                min = "2012-01-01", max = "2014-03-01"),
       
       sliderInput("months", "Length of Analysis (Months):", 
                   min = 1, max = 24, step = 1, value = 3),
-      helpText("Note: data is available from Dec 2010 to Dec 2013. There is inconsistency in 2010-2011 records so I have omitted them for now. It takes longer to redner the plots when you increase this number.")      
+      helpText("Note: data is available from Dec 2010 to Mar 2014. There is inconsistency in 2010-2011 records so I have omitted them for now. It takes longer to redner the plots when you increase this number.")      
       ),
     
     wellPanel(
@@ -36,15 +36,15 @@ shinyUI(pageWithSidebar(
       # selectInput("lang", "Display Langauge:", choice = c("en-GB","fr")),
       selectInput("facet", "Choose Facet Type:", choice = c("none","type", "month", "category")),
       selectInput("type", "Choose Google Map Type:", choice = c("roadmap", "satellite", "hybrid","terrain")),    
-      checkboxInput("res", "High Resolution?", FALSE),
+      checkboxInput("res", "High Resolution?", TRUE),
       checkboxInput("bw", "Black & White?", FALSE),
       sliderInput("zoom", "Zoom Level (Recommended - 14):", 
-                  min = 12, max = 16, step = 1, value = 14)
+                  min = 13, max = 15, step = 1, value = 14)
     ),
     
     wellPanel(
       helpText(HTML("<b>DENSITY PLOT SETTINGS</b>")),
-      sliderInput("alpharanage", "Alpha Range:",
+      sliderInput("alpharange", "Alpha Range:",
                   min = 0, max = 1, step = 0.1, value = c(0.1, 0.4)),
       sliderInput("bins", "Number of Bins:", 
                   min = 5, max = 50, step = 5, value = 15),
@@ -60,15 +60,15 @@ shinyUI(pageWithSidebar(
         
     wellPanel(   
       helpText(HTML("<b>MISC. SETTINGS</b>")),
-      checkboxInput("watermark", "Use 'Blenditbayes' Watermark?", TRUE),
+      checkboxInput("watermark", "Use Watermark?", TRUE),
       helpText("Note: automatically disabled when 'Facet' is used.")
     ),
     
     wellPanel(
       helpText(HTML("<b>VERSION CONTROL</b>")),
-      HTML('Version 0.1.8'),
+      HTML('Version 0.2.0'),
       HTML('<br>'),
-      HTML('Deployed on 04-Apr-2014'),
+      HTML('Deployed on 28-May-2014'),
       HTML('<br>'),
       HTML('<a href="http://bit.ly/github_rApps" target="_blank">Code on GitHub</a>')
     ),
@@ -92,7 +92,8 @@ shinyUI(pageWithSidebar(
     wellPanel(
       helpText(HTML("<b>OTHER STUFF</b>")),
       HTML('<a href="http://bit.ly/bib_heatmapStock" target="_blank">heatmapStock</a>, '),
-      HTML('<a href="http://bit.ly/rCrimemap" target="_blank">rCrimemap</a>.')
+      HTML('<a href="http://bit.ly/rCrimemap" target="_blank">rCrimemap</a>.'),
+      HTML('<a href="http://bit.ly/bib_colour1" target="_blank">Funky Colour Palette</a>.')
     ),
     
     width = 3
@@ -106,12 +107,6 @@ shinyUI(pageWithSidebar(
   mainPanel(
     tabsetPanel(
 
-      ## Experiment
-      #tabPanel("Interactive Crime Map (Test)", includeHTML("html/2014-01-All-iPhone.html")),
-      #tabPanel("LondonR Demo", includeMarkdown("docs/londonr.md")),
-      #tabPanel("Sandbox (rCharts)", showOutput("myChart", "nvd3")),
-      #tabPanel("Sandbox", includeMarkdown("docs/sandbox.md")),
-      
       ## Core tabs
       tabPanel("Introduction", includeMarkdown("docs/introduction.md")),
       tabPanel("Data", dataTableOutput("datatable")),

@@ -1,19 +1,77 @@
 library(shiny)
 library(ggplot2)
 library(ggmap)
-library(RJSONIO)
+library(jsonlite)
 library(png)
 library(grid)
 library(RCurl)
 library(plyr)
 library(markdown)
-library(foreach)
-#library(parallel)
-# library("rCharts", lib.loc="/home/woobe/R/x86_64-pc-linux-gnu-library/3.0")
 
 ## Define server logic required to summarize and view the selected dataset
 shinyServer(function(input, output) {
   
+  ## Testing values
+  if (FALSE) {
+    input <- list(poi = "London Eye",
+                  start = "2013-01-01",
+                  months = 6,
+                  facet = "none",
+                  type = "roadmap",
+                  res = TRUE,
+                  bw = FALSE,
+                  zoom = 14,
+                  alpharange = c(0.1, 0.4),
+                  bins = 15,
+                  boundwidth = 0.1,
+                  boundcolour = "grey95",
+                  low = "yellow",
+                  high = "red",
+                  watermark = "TRUE")
+  }
+  
+  ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ## Static Functions
+  ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ## Get data from API (using jsonlite to flatten list quickly)
+  get_data <- function(map.geocode, map.period) {
+    
+    ## Loop through all months
+    for (n_period in 1:length(map.period)) {
+      
+      ## Create an URL for API
+      url_api <- paste0("http://data.police.uk/api/crimes-street/all-crime?",
+                        "lat=", map.geocode[2], 
+                        "&lng=", map.geocode[1],
+                        "&date=", map.period[n_period])
+      
+      ## Download data
+      tmp_dat <- jsonlite::fromJSON(getURL(url_api), flatten = TRUE)
+      
+      ## Store data
+      if (n_period == 1) out_dat <- tmp_dat else out_dat <- rbind(out_dat, tmp_dat)
+      
+    }
+    
+    ## Trim and Rename columns
+    col_inc <- c("category", "location_type", "id", "month", "location.latitude", 
+                 "location.longitude", "location.streed.id",
+                 "location.street.name")
+    out_dat <- out_dat[, c(1,2,5,7,8,9,10,11)]
+    colnames(out_dat) <- c("category", "type", "id", "month", "latitude",
+                           "longitude", "street_id", "street_name")
+    
+    ## Convert characters into numerical values
+    out_dat$id <- as.integer(out_dat$id)
+    out_dat$latitude <- as.numeric(out_dat$latitude)
+    out_dat$longitude <- as.numeric(out_dat$longitude)
+    out_dat$street_id <- as.integer(out_dat$street_id)
+    
+    ## Return
+    return(out_dat)
+    
+  }
   
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Reactive Functions
@@ -26,53 +84,20 @@ shinyServer(function(input, output) {
   
   ## Define Period
   map.period <- reactive({
-    format(seq(input$start, length=input$months, by="months"), "%Y-%m")
+    format(seq(as.Date(input$start), length=input$months, by="months"), "%Y-%m")
   })
   
-  ## Create Data Framework
+  ## Create Data Frame
   create.df <- reactive({
     
-    ## Use Multicore if available (disabled for now)
-    # num_core <- parallel::detectCores()
-    # if (num_core > 1) {
-    #   registerDoSNOW(makeCluster(max(c(2, (num_core - 1))), type="SOCK"))
-    # }
-    
-    ## Mini function 1
-    mini.unlist <- function(temp.data) {
-      temp.data <- unlist(temp.data)
-      output <- data.frame(
-        category = temp.data[1],
-        streetid = temp.data[4],
-        streetname = temp.data[7],
-        latitude = as.numeric(temp.data[5]),
-        longitude = as.numeric(temp.data[8]),
-        month = temp.data[10],
-        type = temp.data[11])
-      return(output)
-    }
-    
-    ## Mini function 2
-    mini.getdata <- function(temp.period, temp.geocode, n.period) {
-      df <- ldply(.data = fromJSON(getURL(paste0("http://data.police.uk/api/crimes-street/all-crime?lat=",
-                                                 temp.geocode[2], "&lng=", temp.geocode[1],
-                                                 "&date=", temp.period[n.period]))), .fun = mini.unlist)
-      return(df)
-    }
-    
-    ## Use Reactive Functions
+    ## Use Reactive Functions to download data and create a data frame
     temp.geocode <- map.geocode()
     temp.period <- map.period()
+    df <- get_data(temp.geocode, temp.period)
     
-    ## Download data and reformat (in parallel mode if num_core >= 2)
-    df <- foreach(p.period = 1:length(temp.period),
-                  .combine = rbind,
-                  .multicombine = TRUE,
-                  .packages = c("ggmap", "RJSONIO", "plyr", "RCurl")) %dopar%
-      mini.getdata(temp.period, temp.geocode, n.period = p.period)
-    
-    ## Output
+    ## Return
     df
+    
   })
   
   
@@ -82,15 +107,23 @@ shinyServer(function(input, output) {
   
   output$datatable <- renderDataTable({
     
-    if (input$poi == "Demo (London)") {
-      load("./demo/demo_london_eye.rda")
+    ## Check input
+    if (input$poi == "London Eye (Demo)") {
+      
+      ## Use preloaded data
+      load("./demo/demo_london_eye.rda")      
+      
     } else {
+      
+      ## Use reactive function
       df <- create.df()
+      
     }
     
+    ## Display df
     df
     
-  }, options = list(aLengthMenu = c(10, 25, 50, 100, 1000), iDisplayLength = 10))
+  }, options = list(aLengthMenu = c(10, 15, 30, 50, 100, 500), iDisplayLength = 15))
   
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Output 2 - Heat Map
@@ -98,19 +131,15 @@ shinyServer(function(input, output) {
   
   output$map <- renderPlot({
     
-    if (input$poi == "Demo (London)") {
+    ## Check input
+    if (input$poi == "London Eye (Demo)") {
       
-      ## Use pre-loaded demo data
+      ## Use preloaded data
       load("./demo/demo_london_eye.rda")
-      
-      ## Create a data frame for the map center (point of interest)
-      center.df <- data.frame(temp.geocode, location = "London")
-      colnames(center.df) <- c("lon","lat","location")
-      
       
     } else {
       
-      ## Use Reactive Functions
+      ## Use reactive functions
       temp.geocode <- map.geocode()
       temp.period <- map.period()
       
@@ -120,17 +149,16 @@ shinyServer(function(input, output) {
       ## Create a data frame for the map center (point of interest)
       center.df <- data.frame(temp.geocode, location = input$poi)
       colnames(center.df) <- c("lon","lat","location")
+      
     }
-    
     
     ## Download base map using {ggmap}
     ## Note that a PNG file "ggmapTemp.png" will be created
     ## The PNG is not needed for the analysis, you can delete it later
-    temp.color <- "color"
-    if (input$bw) {temp.color <- "bw"}
     
-    temp.scale <- 1
-    if (input$res) {temp.scale <- 2}
+    ## Define colour and scale of base map
+    if (input$bw) temp.color <- "bw" else temp.color <- "color"
+    if (input$res) temp.scale <- 2 else temp.scale <- 1
     
     map.base <- get_googlemap(
       as.matrix(temp.geocode),
@@ -138,10 +166,7 @@ shinyServer(function(input, output) {
       markers = temp.geocode,
       zoom = input$zoom,            ## 14 is just about right for a 1-mile radius
       color = temp.color,   ## "color" or "bw" (black & white)
-      scale = temp.scale,   ## Set it to 2 for high resolution output
-      # other settings that are not used at the moment
-      # language = "en-EN" Ref: https://spreadsheets.google.com/spreadsheet/pub?key=0Ah0xU81penP1cDlwZHdzYWkyaERNc0xrWHNvTTA1S1E&gid=1
-      # style              Ref: https://developers.google.com/maps/documentation/staticmaps/#StyledMapElements
+      scale = temp.scale   ## Set it to 2 for high resolution output
     )
     
     ## Convert the base map into a ggplot object
@@ -157,15 +182,16 @@ shinyServer(function(input, output) {
                          y = latitude, 
                          fill = ..level.., 
                          alpha = ..level..),
+                     na.rm = TRUE,
                      size = input$boundwidth, 
                      bins = input$bins,  ## Change and experiment with no. of bins
                      data = df, 
-                     geom = "polygon", 
+                     geom = "polygon",
                      colour = input$boundcolour) +
       
       ## Configure the scale and panel
       scale_fill_gradient(low = input$low, high = input$high) +
-      scale_alpha(range = input$alpharanage) +
+      scale_alpha(range = input$alpharange) +
       
       ## Title and labels    
       labs(x = "Longitude", y = "Latitude") +
@@ -176,27 +202,24 @@ shinyServer(function(input, output) {
       ## Other theme settings
       theme_bw() +
       theme(
-        plot.title = element_text(size = 36, face = 'bold', vjust = 2),
-        #title = element_text(face = 'bold'),
+        plot.title = element_text(size = 26, face = 'bold', vjust = 2),
         axis.text = element_blank(),
         axis.title = element_blank(),
         axis.ticks = element_blank(),
         legend.position = "none",
-        #axis.text.x = element_text(size = 28),
-        #axis.text.y = element_text(size = 28),
-        #axis.title.x = element_text(size = 32),
-        #axis.title.y = element_text(size = 32),
         strip.background = element_rect(fill = 'grey80'),
-        strip.text = element_text(size = 26)
+        strip.text = element_text(size = 18)
       )
     
-    ## Use Watermark?  
-    if (input$watermark & input$facet == "none") {
-      map.final <- map.final + annotate("text", x = center.df$lon, y = -Inf, 
-                                        label = "blenditbayes.blogspot.co.uk",
-                                        vjust = -1.5, col = "steelblue", 
-                                        cex = 12,
-                                        fontface = "bold", alpha = 0.5)
+    # Use Watermark?  
+    if (input$watermark) {
+      if (input$facet == "none") {
+        map.final <- map.final + annotate("text", x = center.df$lon, y = -Inf, 
+                                          label = "www.jofaichow.co.uk",
+                                          vjust = -1.5, col = "steelblue", 
+                                          cex = 10,
+                                          fontface = "bold", alpha = 0.5)
+      }
     }
     
     ## Use Facet?
@@ -204,13 +227,10 @@ shinyServer(function(input, output) {
     if (input$facet == "month") {map.final <- map.final + facet_wrap(~ month)}
     if (input$facet == "category") {map.final <- map.final + facet_wrap(~ category)}
     
-    ## Save data for next output
-    save(df, center.df, map.final, file = "temp.Rdata")
-    
-    ## Final Print
+    ## Display ggplot2 object
     print(map.final)
     
-  }, width = 1280, height = 1280)
+  }, width = 900, height = 900)
   
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ## Output 3 - Trends 1
@@ -218,15 +238,12 @@ shinyServer(function(input, output) {
   
   output$trends1 <- renderPlot({
     
-    if (input$poi == "Demo (London)") {
+    
+    ## Check input
+    if (input$poi == "London Eye (Demo)") {
       
-      ## Use pre-loaded demo data
+      ## Use preloaded data
       load("./demo/demo_london_eye.rda")
-      
-      ## Create a data frame for the map center (point of interest)
-      center.df <- data.frame(temp.geocode, location = "London")
-      colnames(center.df) <- c("lon","lat","location")
-      
       
     } else {
       
@@ -240,12 +257,10 @@ shinyServer(function(input, output) {
       ## Create a data frame for the map center (point of interest)
       center.df <- data.frame(temp.geocode, location = input$poi)
       colnames(center.df) <- c("lon","lat","location")
+      
     }
     
-    ## Small Summary df
-    #df2 <- ddply(df, .(category, month), summarise, total = length(category))
-    
-    ## Plot
+    ## Create bar chart summary
     plot1 <- ggplot(df, aes(x = month, fill = category)) + 
       geom_bar(colour = "black") + facet_wrap(~ category) +
       labs(x = "Months", y = "Crime Records") + 
@@ -254,15 +269,14 @@ shinyServer(function(input, output) {
                     " to ", temp.period[length(temp.period)], sep="")) +
       theme_bw() +
       theme(
-        plot.title = element_text(size = 36, face = 'bold', vjust = 2),
-        #axis.text.x = element_text(angle = 90, hjust = 1),
+        plot.title = element_text(size = 26, face = 'bold', vjust = 2),
         axis.text.x = element_blank(),
-        axis.text = element_text(size = 24),
-        axis.title.x = element_text(size = 32),
-        axis.title.y = element_text(size = 32),
+        axis.text = element_text(size = 16),
+        axis.title.x = element_text(size = 24),
+        axis.title.y = element_text(size = 24),
         axis.ticks.x = element_blank(),
         strip.background = element_rect(fill = 'grey80'),
-        strip.text.x = element_text(size = 26),
+        strip.text.x = element_text(size = 18),
         legend.position = "none",
         panel.grid = element_blank()
       )
@@ -270,42 +284,6 @@ shinyServer(function(input, output) {
     ## Print
     print(plot1)
     
-  }, width = 1280, height = 1280)
+  }, width = 1000, height = 900)
   
-  ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ## Output x - rCharts
-  ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  
-#   output$myChart <- renderChart({
-#     
-#     if (input$poi == "Demo (London)") {
-#       
-#       ## Use pre-loaded demo data
-#       load("./demo/demo_london_eye.rda")
-#       
-#     } else {
-#       
-#       ## Use Reactive Functions
-#       temp.geocode <- map.geocode()
-#       temp.period <- map.period()
-#       
-#       ## Get df
-#       df <- create.df()
-#       
-#     }
-#     
-#     ## nvd3
-#     n1 <- nPlot( ~ category, group = 'month', data = df, type = 'multiBarHorizontalChart')
-#     #n1 <- nPlot(~ cyl, group = 'gear', data = mtcars, type = 'multiBarHorizontalChart')
-#     n1$chart(showControls = F)
-#     
-#     ## Needed for Shiny
-#     n1$addParams(dom = 'myChart', width = 700, height = 1000)
-#     # n1$addParams(width = 400, height = 400, dom = 'myChart', title = "rCharts Title here ...")
-#     return(n1)
-#     
-#   })
-#   
-
-
 })

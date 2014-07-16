@@ -26,3 +26,7 @@ I recently discovered the [excellent Calender Heat Map example by Paul Bleicher]
 I decided to create a **Shiny** web app to simplify the underlying process, thus allowing users to create heat map comparison with just a few clicks. Yet, this app relies heavily on many of the default settings in **makeR** which means I don't have the full control of graphics. In the future, I intend to experiment with **ggplot2**, **rCharts** as well as **rBlocks**.
 
 <center>![hmStock](http://woobe.bitbucket.org/images/github/heatmapStock_github.png)</center>
+
+## Oddsimiser 注碼優化器 ([oddsimiser](http://bit.ly/oddsimiser))
+
+I created this for my friends in Hong Kong. It is a simple app for stakes optimisation based on genetic algorithm. Quick turnaround (a few seconds) is the main design focus so the optimisation outputs are not optimal but close enough for practical uses. Note that most instructions are written in Chinese.

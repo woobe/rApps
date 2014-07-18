@@ -7,6 +7,7 @@ Current applications hosted on **ShinyApps**:
 
 1. [**CrimeMap**](http://bit.ly/bib_crimemap): UK Crime Data Visualisation
 2. [**heatmapStock**](http://bit.ly/bib_heatmapStock): Stock Market Calendar Heat Map (Prototype)
+3. [**Oddsimiser**](http://bit.ly/oddsimiser): Stakes Optimisation (Prototype)
 
 For latest updates, please check out my blog [**"Blend it like a Bayesian!"**](http://bit.ly/blenditbayes).  
 

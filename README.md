@@ -8,6 +8,7 @@ Current applications hosted on **ShinyApps**:
 1. [**CrimeMap**](http://bit.ly/bib_crimemap): UK Crime Data Visualisation
 2. [**heatmapStock**](http://bit.ly/bib_heatmapStock): Stock Market Calendar Heat Map (Prototype)
 3. [**Oddsimiser**](http://bit.ly/oddsimiser): Stakes Optimisation (Prototype)
+4. [**rugsmaps**](http://bit.ly/rugsmaps): Maps of R User Groups Around the World
 
 For latest updates, please check out my blog [**"Blend it like a Bayesian!"**](http://bit.ly/blenditbayes).  
 
@@ -28,6 +29,25 @@ I decided to create a **Shiny** web app to simplify the underlying process, thus
 
 <center>![hmStock](http://woobe.bitbucket.org/images/github/heatmapStock_github.png)</center>
 
+
 ## Oddsimiser 注碼優化器 ([oddsimiser](http://bit.ly/oddsimiser))
 
 I created this for my friends in Hong Kong. It is a simple app for stakes optimisation based on genetic algorithm. Quick turnaround (a few seconds) is the main design focus so the optimisation outputs are not optimal but close enough for practical uses. Note that most instructions are written in Chinese.
+
+
+
+## Maps of R User Group Around the World ([rugsmaps](http://bit.ly/rugsmaps))
+
+**Note**: code at [github.com/woobe/rugsmaps](https://github.com/woobe/rugsmaps)
+
+This shiny app is my submission to the [visualization contest](http://blog.revolutionanalytics.com/2014/06/contest-prizes-for-best-r-user-groups-plot.html) held by Revolution Analytics. The app is currently hosted on [blenditbayes.shinyapps.io/rugsmaps](https://blenditbayes.shinyapps.io/rugsmaps/). 
+
+You can also run this app locally on your machine using the following code:
+
+```
+install.packages("shiny")
+shiny::runGitHub("woobe/rugsmaps")
+```
+
+![rugsmaps1](https://raw.githubusercontent.com/woobe/rugsmaps/master/image/rugsmap_screenshot_01.png)
+
